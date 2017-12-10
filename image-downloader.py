@@ -55,7 +55,7 @@ def download_image(image_url, dest_dir, image_filename):
             logging.warning("unknown image content type %s" % content_type)
             return
 
-        image_path = "%s/%s.%s" % (dest_dir, image_filename, ext)
+        image_path = os.path.join(dest_dir, image_filename+"."+ext)
         shutil.move(tmp_file_name, image_path)
     except Exception as e:
         logging.warning("Image download error. %s" % e)
@@ -63,7 +63,7 @@ def download_image(image_url, dest_dir, image_filename):
 def get_csv_image_dir(csv_filename):
 
     base = os.path.basename(csv_filename)
-    dir = "./"+os.path.splitext(base)[0]
+    dir = os.path.splitext(base)[0]
 
     if not os.path.exists(dir):
         os.makedirs(dir)
