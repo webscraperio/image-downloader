@@ -7,6 +7,9 @@ import time
 import os
 import logging
 
+# http client configuration
+user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/63.0.3239.84 Chrome/63.0.3239.84 Safari/537.36'
+
 # logging configuration
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
@@ -19,11 +22,28 @@ if python_version == 3:
     import urllib.request
     urljoin = urllib.parse.urljoin
     urlretrieve = urllib.request.urlretrieve
+    quote = urllib.parse.quote
+
+    # configure headers
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-agent', user_agent)]
+    urllib.request.install_opener(opener)
 else:
     import urlparse
     import urllib
     urljoin = urlparse.urljoin
     urlretrieve = urllib.urlretrieve
+    quote = urllib.quote
+
+    # configure headers
+    class AppURLopener(urllib.FancyURLopener):
+        version = user_agent
+    urllib._urlopener = AppURLopener()
+
+def fix_url(url):
+    url = quote(url, safe="%/:=&?~#+!$,;'@()*[]")
+    return url
+
 
 def download_csv_row_images(row, dest_dir):
     for key in row:
@@ -39,6 +59,8 @@ def download_csv_row_images(row, dest_dir):
 
 
 def download_image(image_url, dest_dir, image_filename):
+
+    image_url = fix_url(image_url)
 
     try:
         logging.info("downloading image %s" % image_url)
