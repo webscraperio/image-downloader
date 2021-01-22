@@ -73,6 +73,8 @@ def download_image(image_url, dest_dir, image_filename):
             ext = 'png'
         elif content_type == 'image/gif':
             ext = 'gif'
+        elif content_type == 'image/webp':
+            ext = 'webp'
         else:
             logging.warning("unknown image content type %s" % content_type)
             return
