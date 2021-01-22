@@ -106,7 +106,7 @@ def download_csv_file_images(filename):
             skip_utf8_seek = 3
 
 
-    with open(filename, "r") as csvfile:
+    with open(filename, "r", encoding="utf8") as csvfile:
 
         # remove ut-8 bon sig
         csvfile.seek(skip_utf8_seek)
