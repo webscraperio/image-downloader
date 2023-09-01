@@ -8,15 +8,19 @@ import os
 import logging
 
 # http client configuration
-user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/63.0.3239.84 Chrome/63.0.3239.84 Safari/537.36'
+# Chrome version on Windows 10 64-bit (as of end Aug 2023)
+user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
 
 # logging configuration
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
+# delay in seconds, fraction of a second is OK
+dl_delay = 0.25
+
 python_version = sys.version_info.major
 logging.info("executed by python %d" % python_version)
 
-# compatability with python 2
+# Ended support for Python 2
 if python_version == 3:
     import urllib.parse
     import urllib.request
@@ -29,11 +33,9 @@ if python_version == 3:
     opener.addheaders = [('User-agent', user_agent)]
     urllib.request.install_opener(opener)
 else:
-    import urlparse
-    import urllib
-    urljoin = urlparse.urljoin
-    urlretrieve = urllib.urlretrieve
-    quote = urllib.quote
+    print("Python 2 is not supported. Please use Python 3.")
+    print("Exiting the program...")
+    sys.exit(1)
 
     # configure headers
     class AppURLopener(urllib.FancyURLopener):
@@ -116,10 +118,12 @@ def download_csv_file_images(filename):
         csvreader = csv.DictReader(csvfile)
         for row in csvreader:
             download_csv_row_images(row, dest_dir)
+            # delay in seconds. Disable line below for no delay.
+            time.sleep(dl_delay)
 
 def main(args):
 
-    # filename passde through args
+    # filename passed through args
     if len(args) >=2:
         csv_filename = args[1]
         download_csv_file_images(csv_filename)
@@ -128,6 +132,14 @@ def main(args):
     else:
         logging.warning("no input file found")
 
-    time.sleep(10)
+    # Removed the 10-second delay and replaced it with call to Windows' built-in Pause
+    # Enable the os.system line when creating app file with PyInstaller
+    # This only works for Windows .exe
+    # It will display "Press any key to continue..."
+    os.system('pause') 
+
+    # Restore the line below and disable the os.system line if you want 10-second delay 
+    # after downloading is done
+    # time.sleep(10)
 
 main(sys.argv)
